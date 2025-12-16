@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+
+
+@import "@jamsr-ui/theme/styles.css";
+@source "../../node_modules/@jamsr-ui";
+
+
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+}
+
+[data-theme='dark'] {
+  --background-color: #181818;
+  --text-color: #ffffff;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+  font-family: ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
