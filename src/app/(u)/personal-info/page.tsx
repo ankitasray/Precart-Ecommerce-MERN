@@ -28,6 +28,8 @@ const collapsibleItems = [
   { id: 4, heading: "Password", subHeading: "123 Main Street" },
 ];
 
+
+
 const Page = () => {
   // Tracks edit mode for each item
   const [editMode, setEditMode] = useState<CollapsibleState>({});

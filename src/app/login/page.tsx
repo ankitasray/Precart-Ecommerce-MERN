@@ -1,37 +1,110 @@
 "use client";
-import { Button, Checkbox, Input } from '@jamsr-ui/react'
-import Link from 'next/link'
-import React from 'react'
-import { useRouter } from 'next/navigation';
+import { Button, Checkbox, Input } from "@jamsr-ui/react";
+import Link from "next/link";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
-const Page = () => {
-    const router = useRouter();
+const LoginPage = () => {
+  const router = useRouter();
 
-    const handleCreateAccount = () => {
-        router.push('/registration');
-      };
+  // Form state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        { email, password },
+        { withCredentials: true } // important to send/receive cookies
+      );
+
+      console.log(res.data.message);
+      setError("");
+
+      // Redirect to dashboard or home after login
+      router.push("/");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Login failed");
+      } else {
+        setError("Something went wrong");
+      }
+    }
+  };
+
   return (
-    <div className='container mx-auto max-w-[1280px]   flex justify-center items-center '>
-        <div className='min-w-lg'>
-            <h1 className='text-xl font-semibold text-center mb-5'>Log In </h1>
-            <div>
-                <Input size="lg"  variant="standard" className=''  placeholder="Email" />
-               
-            </div>
-            <div className='mt-5'>
-                <Input size="lg"  variant="standard" className=''  placeholder="Password" isSecuredText />
-               
-            </div>
-            <div className='flex justify-between items-center my-5'>
-                <Checkbox label='Remember me' />
-                <Link href="/forgot-password" className='text-sm text-neutral-500 underline underline-offset-4'>Forgot Password ?</Link>
+    <div className="container mx-auto max-w-[1280px] flex justify-center items-center min-h-screen">
+      <div className="min-w-lg">
+        <h1 className="text-xl font-semibold text-center mb-5">Log In</h1>
 
-            </div>
-            <Button size='lg' color='primary' className='w-full mb-5' >Log In</Button>
-            <Button size='lg' variant='outlined' className='w-full ' onClick={handleCreateAccount}>Create account</Button>
+        {error && (
+          <p className="text-red-500 text-sm text-center mb-5">{error}</p>
+        )}
+
+        <div className="mb-5">
+          <Input
+            size="lg"
+            variant="standard"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-    </div>
-  )
-}
 
-export default Page
+        <div className="mb-5">
+          <Input
+            size="lg"
+            variant="standard"
+            placeholder="Password"
+            isSecuredText
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <div className="flex justify-between items-center mb-5">
+          <Checkbox
+            label="Remember me"
+            isChecked={rememberMe}
+            onCheckedChange={(val) => setRememberMe(val)}
+          />
+          <Link
+            href="/forgot-password"
+            className="text-sm text-neutral-500 underline underline-offset-4"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        <Button
+          size="lg"
+          color="primary"
+          className="w-full mb-5"
+          onClick={handleLogin}
+        >
+          Log In
+        </Button>
+
+        <Button
+          size="lg"
+          variant="outlined"
+          className="w-full"
+          onClick={() => router.push("/registration")}
+        >
+          Create account
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
