@@ -133,23 +133,20 @@ const Page = () => {
         </div>
 
         {/* Gender */}
-        <div className="mb-5 p-2 border-b border-neutral-500">
-          <RadioGroup
-            label="Gender"
-            value={form.gender}
-            onChange={(e) =>
-              handleChange(
-                "gender",
-                (e.target as HTMLInputElement)
-                  .value as FormState["gender"]
-              )
-            }
-          >
-            <Radio value="male">Male</Radio>
-            <Radio value="female">Female</Radio>
-            <Radio value="other">Other</Radio>
-          </RadioGroup>
-        </div>
+       <div className="mb-5 p-2 border-b border-neutral-500">
+  <RadioGroup
+    label="Gender"
+    value={form.gender}
+    onValueChange={(value) =>
+      handleChange("gender", value as FormState["gender"])
+    }
+  >
+    <Radio value="male">Male</Radio>
+    <Radio value="female">Female</Radio>
+    <Radio value="other">Other</Radio>
+  </RadioGroup>
+</div>
+
 
         {/* Subscribe */}
         <div className="mb-5 p-2 border-b border-neutral-500">

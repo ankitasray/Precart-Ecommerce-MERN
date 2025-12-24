@@ -1,6 +1,7 @@
 import express from "express";
-import { register, login, logout, getProfile } from "../controllers/auth.controller.js";
+import { register, login, logout, getProfile,updateProfile,deleteAccount,updateAvatar } from "../controllers/auth.controller.js";
 import authMiddleware from "../../middleware/auth.middleware.js";
+import { uploadAvatar } from "../../middleware/upload.js";
 
 
 const router = express.Router();
@@ -32,5 +33,18 @@ router.post("/logout", authMiddleware, logout);
  * @access  Private
  */
 router.get("/me", authMiddleware, getProfile);
+router.patch("/profile", authMiddleware, updateProfile);
+router.delete(
+  "/delete-account",
+  authMiddleware,
+  deleteAccount
+);
+router.patch(
+  "/avatar",
+  authMiddleware,
+  uploadAvatar.single("avatar"),
+  updateAvatar
+);
+
 
 export default router;

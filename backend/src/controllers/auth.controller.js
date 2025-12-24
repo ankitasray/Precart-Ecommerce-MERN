@@ -75,33 +75,40 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    // console.log("REQ BODY:", req.body);
 
-    // Check if user exists
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
+  //     if (!user || !user.isActive) {
+  //   return res.status(403).json({
+  //     message: "Account is deactivated",
+  //   });
+  // }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Create JWT token
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Send token in HTTP-only cookie
     res
       .cookie("token", token, {
         httpOnly: true,
         sameSite: "strict",
-        secure: process.env.NODE_ENV === "production", // true in production
+        secure: process.env.NODE_ENV === "production",
       })
       .status(200)
       .json({
@@ -113,10 +120,11 @@ export const login = async (req, res) => {
         },
       });
   } catch (err) {
-    console.error(err);
+    console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
@@ -145,3 +153,88 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    if (!name && !email) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
+    // Prevent duplicate email
+    if (email) {
+      const exists = await User.findOne({
+        email,
+        _id: { $ne: req.user.userId },
+      });
+      if (exists) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      {
+        ...(name && { name }),
+        ...(email && { email }),
+      },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// controllers/auth.controller.js
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Clear auth cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { avatar: `/uploads/avatars/${req.file.filename}` },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Upload failed" });
+  }
+};
+
+
+
