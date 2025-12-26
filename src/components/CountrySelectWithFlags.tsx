@@ -1,55 +1,51 @@
-import { useState } from "react";
-import { Select, SelectItem } from "@jamsr-ui/react";
+"use client";
 
-type CountryOption = {
-  label: string;
+interface CountrySelectProps {
   value: string;
-  flag: string;
-};
+  onChange: (val: string) => void;
+}
 
-export const CountrySelect = () => {
-  const countries: CountryOption[] = [
-    { label: "United States", value: "US", flag: "🇺🇸" },
-    { label: "Canada", value: "Canada", flag: "🇨🇦" },
-    { label: "United Kingdom", value: "UK", flag: "🇬🇧" },
-    { label: "Australia", value: "Australia", flag: "🇦🇺" },
-    { label: "Germany", value: "Germany", flag: "🇩🇪" },
-    { label: "France", value: "France", flag: "🇫🇷" },
-    { label: "India", value: "India", flag: "🇮🇳" },
-    { label: "Japan", value: "Japan", flag: "🇯🇵" },
-    { label: "China", value: "China", flag: "🇨🇳" },
-    { label: "Brazil", value: "Brazil", flag: "🇧🇷" },
-  ];
-
-  const [selected] = useState<string | undefined>("");
-
-  // Find the selected country object based on selected value
-  const selectedCountry = countries.find(
-    (country) => country.value === selected
-  );
-
+const CountrySelect: React.FC<CountrySelectProps> = ({
+  value,
+  onChange,
+}) => {
   return (
-    <div className="w-full">
-      <Select
-        className=""
-        size="lg"
-        label="Select Country"
-        placeholder="Choose a country"
-        startContent={
-          selectedCountry ? (
-            <span className="text-xl">{selectedCountry.flag}</span>
-          ) : null
-        }
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+        Country
+      </label>
+
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="
+          h-11 rounded-xl border px-3 text-sm
+          bg-white text-black border-neutral-300
+          focus:outline-none focus:ring-2 focus:ring-blue-500
+          dark:bg-neutral-900 dark:text-white dark:border-neutral-700
+        "
       >
-        {countries.map((country) => (
-          <SelectItem key={country.value} value={country.value}>
-            <div className="flex items-center gap-2">
-              <span className="text-xl">{country.flag}</span>
-              <span>{country.label}</span>
-            </div>
-          </SelectItem>
-        ))}
-      </Select>
+        <option value="" className="dark:bg-neutral-900">
+          Select country
+        </option>
+        <option value="India" className="dark:bg-neutral-900">
+          🇮🇳 India
+        </option>
+        <option value="US" className="dark:bg-neutral-900">
+          🇺🇸 United States
+        </option>
+        <option value="UK" className="dark:bg-neutral-900">
+          🇬🇧 United Kingdom
+        </option>
+        <option value="Canada" className="dark:bg-neutral-900">
+          🇨🇦 Canada
+        </option>
+        <option value="Australia" className="dark:bg-neutral-900">
+          🇦🇺 Australia
+        </option>
+      </select>
     </div>
   );
 };
+
+export default CountrySelect;

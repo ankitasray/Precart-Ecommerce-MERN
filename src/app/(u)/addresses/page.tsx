@@ -1,109 +1,131 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import AddressCard, { AddressData } from "@/components/AddressCard";
 import { Add } from "@/components/svgs";
 import AddressUpdate from "@/components/AddressUpdate";
 
-const initialAddresses: AddressData[] = [
-  {
-    id: "1",
-    label: "Home",
-    recipientName: "James Collins",
-    street: "280 Suzanne Throughway",
-    city: "Breannabury",
-    state: "Bihar",
-    postalCode: "45801",
-    country: "US",
-    phone: "+44 000 000 0001",
-  },
-  {
-    id: "2",
-    label: "Office",
-    recipientName: "James Collins",
-    street: "123 Business St",
-    city: "Portland",
-    state: "Utter Pradesh",
-    postalCode: "97035",
-    country: "US",
-    phone: "+44 000 000 0002",
-  },
-];
-
 const Page: React.FC = () => {
-  const [addresses, setAddresses] = useState<AddressData[]>(initialAddresses);
-  const [defaultAddressId, setDefaultAddressId] = useState("1");
+  const [addresses, setAddresses] = useState<AddressData[]>([]);
+  const [defaultAddressId, setDefaultAddressId] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<AddressData | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  /* ================= FETCH ADDRESSES ================= */
+  const fetchAddresses = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        "http://localhost:5000/api/address",
+        { withCredentials: true }
+      );
+
+      const data: AddressData[] = Array.isArray(res.data)
+  ? res.data
+  : [];
+
+setAddresses(data);
+
+
+      // set default address
+      const defaultAddr = data.find((a) => a.isDefault);
+      setDefaultAddressId(defaultAddr?._id || "");
+    } catch (err) {
+      console.error("Failed to fetch addresses", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  /* ================= HANDLERS ================= */
   const handleOpen = () => {
-    setEditingAddress(null); 
+    setEditingAddress(null);
     setIsOpen(true);
   };
 
   const handleEdit = (id: string) => {
-    const address = addresses.find((addr) => addr.id === id);
+    const address = addresses.find((addr) => addr._id === id);
     if (address) {
-      setEditingAddress(address); // Pass the address to the modal
+      setEditingAddress(address);
       setIsOpen(true);
     }
-    // Add your edit modal logic here
   };
 
-  const handleRemove = (id: string) => {
-    console.log(`Removing address ${id}`);
-
-    // Remove the address from the list
-    setAddresses((prev) => prev.filter((address) => address.id !== id));
-
-    // If the removed address was the default, clear it or pick another
-    if (id === defaultAddressId) {
-      const remaining = addresses.filter((address) => address.id !== id);
-      setDefaultAddressId(remaining[0]?.id || "");
+  const handleRemove = async (id: string) => {
+    try {
+      await axios.delete(
+        `http://localhost:5000/api/address/${id}`,
+        { withCredentials: true }
+      );
+      fetchAddresses();
+    } catch (err) {
+      console.error("Failed to delete address", err);
     }
   };
 
-  const handleSetAsDefault = (id: string) => {
-    console.log(`Setting address ${id} as default`);
-    setDefaultAddressId(id);
-  };
+  const handleSetAsDefault = async (id: string) => {
+  await axios.put(
+    `http://localhost:5000/api/address/${id}/default`,
+    {},
+    { withCredentials: true }
+  );
+  fetchAddresses();
+};
 
+
+  /* ================= UI ================= */
   return (
     <div className="p-5 w-full min-h-full">
-      <div className="flex justify-between items-center w-full mb-6">
-        <div className="text-lg font-semibold w-1/2">Address</div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-semibold">Address</h2>
       </div>
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 ">
-      {addresses.map((address) => (
-        <AddressCard
-          key={address.id}
-          address={address}
-          isDefault={defaultAddressId === address.id}
-          onEdit={handleEdit}
-          onRemove={handleRemove}
-          onSetAsDefault={handleSetAsDefault}
-        />
-      ))}
 
-      {addresses.length === 0 && (
-        <p className="text-gray-500 text-sm">No addresses found.</p>
-      )}
-      <div
-        onClick={handleOpen}
-        className="min-w-[300px] group  border rounded-2xl border-neutral-500 border-dashed p-2  h-[215px] flex items-center justify-center ">
-        <div  >
-        <Add className="w-10 h-10 text-neutral-500 mx-auto"/>
-        <p className="text-sm group-hover:text-blue-400">Add address</p>
+      {loading && <p className="text-sm text-neutral-500">Loading...</p>}
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {addresses.map((address) => (
+          <AddressCard
+            key={address._id}
+            address={address}
+            isDefault={defaultAddressId === address._id}
+            onEdit={handleEdit}
+            onRemove={handleRemove}
+            onSetAsDefault={handleSetAsDefault}
+          />
+        ))}
+
+        {!loading && addresses.length === 0 && (
+          <p className="text-gray-500 text-sm">No addresses found.</p>
+        )}
+
+        {/* ADD CARD */}
+        <div
+          onClick={handleOpen}
+          className="min-w-[300px] group border border-dashed rounded-2xl border-neutral-500 h-[215px] flex items-center justify-center cursor-pointer"
+        >
+          <div>
+            <Add className="w-10 h-10 text-neutral-500 mx-auto" />
+            <p className="text-sm group-hover:text-blue-400">
+              Add address
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    {isOpen && (
-      <AddressUpdate
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        address={editingAddress}
-        // Pass other props as needed
-      />
-    )}
+
+      {/* MODAL */}
+      {isOpen && (
+        <AddressUpdate
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          address={editingAddress}
+          onSuccess={fetchAddresses} // 🔥 refetch after save
+        />
+      )}
     </div>
   );
 };

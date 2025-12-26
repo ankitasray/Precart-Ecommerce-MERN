@@ -1,12 +1,12 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
-import { Chip,} from "@jamsr-ui/react";
+import { Chip } from "@jamsr-ui/react";
 import React from "react";
 
 export type AddressData = {
-  id: string; // useful for identifying in callbacks
-  label: string; // title of address (e.g., "Home", "Work", or city)
+  _id: string;
+  label: string;
   recipientName: string;
   street: string;
   street2?: string;
@@ -15,6 +15,7 @@ export type AddressData = {
   postalCode: string;
   country: string;
   phone: string;
+  isDefault?: boolean;
 };
 
 export type AddressCardProps = {
@@ -34,21 +35,9 @@ const AddressCard: React.FC<AddressCardProps> = ({
 }) => {
   const { theme } = useTheme();
 
-  const handleEdit = () => {
-    if (onEdit) onEdit(address.id);
-  };
-
-  const handleRemove = () => {
-    if (onRemove && !isDefault) onRemove(address.id);
-  };
-
-  const handleSetAsDefault = () => {
-    if (onSetAsDefault && !isDefault) onSetAsDefault(address.id);
-  };
-
   return (
     <div
-      className={`rounded-2xl p-2  ${
+      className={`rounded-2xl p-2 ${
         theme === "light" ? "bg-neutral-100" : "bg-zinc-800"
       }`}
     >
@@ -60,65 +49,53 @@ const AddressCard: React.FC<AddressCardProps> = ({
         <div className="flex justify-between items-center mb-2">
           <h1 className="font-medium">{address.label}</h1>
           {isDefault && (
-            <Chip
-              variant="outlined"
-              color="primary"
-              size="sm"
-              className="px-2 text-xs"
-            >
+            <Chip variant="outlined" color="primary" size="sm">
               Default
             </Chip>
           )}
         </div>
 
-        <div>
-          <p className="text-sm tracking-wide leading-5">
-            {address.recipientName} <br />
-            {address.street} <br />
-            {`${address.city}, ${address.state} ${address.postalCode}`} <br />
-            {address.country} <br />
-            {address.phone}
-          </p>
-        </div>
+        <p className="text-sm leading-5">
+          {address.recipientName} <br />
+          {address.street} <br />
+          {address.city}, {address.state} {address.postalCode} <br />
+          {address.country} <br />
+          {address.phone}
+        </p>
       </div>
 
-      <div className="flex items-center justify-center gap-3 p-2 text-sm">
+      <div className="flex justify-center gap-3 p-2 text-sm">
         <button
-          onClick={handleEdit}
-          className="hover:underline underline-offset-4 hover:text-blue-400 cursor-pointer"
+          onClick={() => onEdit?.(address._id)}
+          className="hover:underline hover:text-blue-400"
         >
           Edit
         </button>
 
-        <div className="w-[1px] h-4 bg-neutral-500" />
+        <div className="w-px h-4 bg-neutral-500" />
 
         <button
-          onClick={handleRemove}
           disabled={isDefault}
-          className={`${
-            isDefault
-              ? "text-neutral-400 "
-              : "hover:underline hover:text-blue-400 cursor-pointer underline-offset-4"
-          }`}
+          onClick={() => onRemove?.(address._id)}
+          className={
+            isDefault ? "text-neutral-400" : "hover:underline hover:text-blue-400"
+          }
         >
           Remove
         </button>
 
-        <div className="w-[1px] h-4 bg-neutral-500" />
+        <div className="w-px h-4 bg-neutral-500" />
 
         <button
-          onClick={handleSetAsDefault}
           disabled={isDefault}
-          className={`${
-            isDefault
-              ? "text-neutral-400"
-              : "hover:underline hover:text-blue-400 cursor-pointer underline-offset-4"
-          }`}
+          onClick={() => onSetAsDefault?.(address._id)}
+          className={
+            isDefault ? "text-neutral-400" : "hover:underline hover:text-blue-400"
+          }
         >
           Set as default
         </button>
       </div>
-      
     </div>
   );
 };

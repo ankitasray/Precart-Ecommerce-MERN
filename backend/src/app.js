@@ -7,7 +7,7 @@ import productImageRoutes from "./routes/productImage.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import path from "path";
-
+import addressRoutes from "./routes/addressRoutes.js";
 const app = express();
 
 app.use(
@@ -24,6 +24,10 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/product-images", productImageRoutes);
 app.use("/api/auth", authRoutes);
+
+
+app.use("/api/address", addressRoutes);
+
 app.use(
   "/uploads",
   express.static(path.join(process.cwd(), "uploads"))
