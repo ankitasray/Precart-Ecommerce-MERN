@@ -4,6 +4,7 @@ import "./globals.css";
 import { UIConfigProvider, UIProvider } from "@jamsr-ui/react";
 import { ThemeProvider } from "@/context/ThemeContext";
 import LayoutContent from "@/components/LayoutContent";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +44,10 @@ export default function RootLayout({
                 className: "border border-[hsl(210,9.8%,16.1%)] bg-transparent",
               }}
             >
-                 <LayoutContent>{children}</LayoutContent>
+              <ConditionalLayout>
+  {children}
+</ConditionalLayout>
+
             </UIConfigProvider>
           </UIProvider>
         </ThemeProvider>
