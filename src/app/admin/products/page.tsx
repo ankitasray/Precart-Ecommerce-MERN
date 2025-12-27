@@ -2,42 +2,67 @@
 
 import { Button, Card } from "@jamsr-ui/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
+import {
+  getProducts,
+  deleteProduct,
+} from "@/services/productService";
 
-const INITIAL_PRODUCTS = [
-  {
-    id: "1",
-    name: "Men Hoodie",
-    category: "Men",
-    price: "$45",
-    stock: 12,
-  },
-  {
-    id: "2",
-    name: "Women Sneakers",
-    category: "Women",
-    price: "$89",
-    stock: 6,
-  },
-];
+type Product = {
+  _id: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+};
 
 export default function ProductsPage() {
-  // ✅ PRODUCTS STATE
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
-
-  // ✅ DELETE STATE
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const handleDelete = () => {
+  /* FETCH PRODUCTS */
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await getProducts();
+      setProducts(data);
+    } catch (err) {
+      setError("Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* DELETE PRODUCT */
+  const handleDelete = async () => {
     if (!deleteId) return;
 
-    setProducts((prev) =>
-      prev.filter((product) => product.id !== deleteId)
-    );
-
-    setDeleteId(null); // close modal
+    try {
+      await deleteProduct(deleteId);
+      setProducts((prev) =>
+        prev.filter((p) => p._id !== deleteId)
+      );
+    } catch (err) {
+      alert("Failed to delete product");
+    } finally {
+      setDeleteId(null);
+    }
   };
+
+  if (loading) {
+    return <p className="text-neutral-400">Loading products...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
 
   return (
     <div className="space-y-6">
@@ -83,15 +108,18 @@ export default function ProductsPage() {
 
               {products.map((product) => (
                 <tr
-                  key={product.id}
+                  key={product._id}
                   className="border-b border-neutral-800 hover:bg-neutral-800"
                 >
                   <td className="p-3">{product.name}</td>
                   <td className="p-3">{product.category}</td>
-                  <td className="p-3">{product.price}</td>
+                  <td className="p-3">${product.price}</td>
                   <td className="p-3">{product.stock}</td>
+
                   <td className="p-3 text-right space-x-2">
-                    <Link href={`/admin/products/edit/${product.id}`}>
+                    <Link
+                      href={`/admin/products/edit/${product._id}`}
+                    >
                       <Button size="sm" variant="outlined">
                         Edit
                       </Button>
@@ -101,7 +129,7 @@ export default function ProductsPage() {
                       size="sm"
                       color="danger"
                       variant="outlined"
-                      onClick={() => setDeleteId(product.id)}
+                      onClick={() => setDeleteId(product._id)}
                     >
                       Delete
                     </Button>
@@ -113,7 +141,7 @@ export default function ProductsPage() {
         </div>
       </Card>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <DeleteConfirmModal
         open={!!deleteId}
         onCancel={() => setDeleteId(null)}
