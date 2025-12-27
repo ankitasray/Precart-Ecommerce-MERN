@@ -3,9 +3,7 @@
 import { Button, Checkbox, Input } from "@jamsr-ui/react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const ADMIN_EMAIL = "admin@precart.com";
-const ADMIN_PASSWORD = "admin123";
+import axios from "axios";
 
 export default function Page() {
   const router = useRouter();
@@ -13,31 +11,48 @@ export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      router.push("/admin");
-    } else {
-      setError("Invalid admin credentials");
+  const handleLogin = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/admin/login",
+        { email, password },
+        { withCredentials: true }
+      );
+
+      // ✅ Only admin can reach here
+      if (res.data.role === "admin") {
+        router.push("/admin");
+      } else {
+        setError("You are not an admin");
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || "Admin login failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="container mx-auto max-w-[1280px] flex justify-center items-center pt-5 mt-16">
-      <div className="min-w-lg">
+      <div className="min-w-lg w-[360px]">
         <h1 className="text-xl font-semibold text-center mb-5">
-          Admin
+          Admin Login
         </h1>
 
-        <div>
-          <Input
-            size="lg"
-            variant="standard"
-            placeholder="Admin Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <Input
+          size="lg"
+          variant="standard"
+          placeholder="Admin Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <div className="mt-5">
           <Input
@@ -55,7 +70,9 @@ export default function Page() {
         </div>
 
         {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">{error}</p>
+          <p className="text-red-500 text-sm mb-3 text-center">
+            {error}
+          </p>
         )}
 
         <Button
@@ -63,8 +80,9 @@ export default function Page() {
           color="primary"
           className="w-full mb-5"
           onClick={handleLogin}
+          disabled={loading}
         >
-          Log In
+          {loading ? "Logging in..." : "Log In"}
         </Button>
       </div>
     </div>

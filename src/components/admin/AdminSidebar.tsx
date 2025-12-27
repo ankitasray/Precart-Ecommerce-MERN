@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -12,8 +13,19 @@ export default function AdminSidebar() {
       ? "bg-primary text-white"
       : "text-neutral-400 hover:bg-neutral-800";
 
-  const handleLogout = () => {
-    router.push("/admin/login");
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:5000/api/admin/logout",
+        {},
+        { withCredentials: true }
+      );
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      // Always redirect
+      router.replace("/admin/login");
+    }
   };
 
   return (
@@ -21,7 +33,10 @@ export default function AdminSidebar() {
       <h2 className="text-lg font-semibold mb-6">Admin Panel</h2>
 
       <nav className="space-y-2">
-        <Link href="/admin" className={`block px-4 py-2 rounded ${isActive("/admin")}`}>
+        <Link
+          href="/admin"
+          className={`block px-4 py-2 rounded ${isActive("/admin")}`}
+        >
           Dashboard
         </Link>
 
