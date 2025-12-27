@@ -48,6 +48,13 @@ export default function AdminSidebar() {
         </Link>
 
         <Link
+          href="/admin/categories"
+          className={`block px-4 py-2 rounded ${isActive("/admin/categories")}`}
+        >
+          Categories
+        </Link>
+
+        <Link
           href="/admin/orders"
           className={`block px-4 py-2 rounded ${isActive("/admin/orders")}`}
         >

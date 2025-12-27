@@ -3,9 +3,10 @@ const API_BASE_URL = "http://localhost:5000/api"; // change if needed
 export type ProductPayload = {
   name: string;
   price: number;
-  category: string;
+  category_id: string;
   stock: number;
 };
+
 
 /* ===================== PRODUCTS ===================== */
 

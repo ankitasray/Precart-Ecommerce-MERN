@@ -12,10 +12,14 @@ import {
 type Product = {
   _id: string;
   name: string;
-  category: string;
   price: number;
   stock: number;
+  category_id?: {
+    _id: string;
+    name: string;
+  };
 };
+
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -112,7 +116,10 @@ export default function ProductsPage() {
                   className="border-b border-neutral-800 hover:bg-neutral-800"
                 >
                   <td className="p-3">{product.name}</td>
-                  <td className="p-3">{product.category}</td>
+                  <td className="p-3">
+                    {product.category_id?.name ?? "—"}
+                  </td>
+
                   <td className="p-3">${product.price}</td>
                   <td className="p-3">{product.stock}</td>
 

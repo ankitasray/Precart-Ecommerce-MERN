@@ -1,32 +1,40 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  Input,
-  Select,
-  SelectItem,
-} from "@jamsr-ui/react";
+import { Button, Card, Input } from "@jamsr-ui/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createProduct } from "@/services/productService";
+import { getCategories } from "@/services/categoryService";
+
+type Category = {
+  _id: string;
+  name: string;
+};
 
 export default function AddProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [form, setForm] = useState({
     name: "",
     price: "",
-    category: [] as string[],
+    category_id: "",
     stock: "",
   });
+
+  /* Load categories */
+  useEffect(() => {
+    getCategories()
+      .then(setCategories)
+      .catch(() => alert("Failed to load categories"));
+  }, []);
 
   const handleSubmit = async () => {
     if (
       !form.name ||
       !form.price ||
-      !form.category.length ||
+      !form.category_id ||
       !form.stock
     ) {
       alert("Please fill all fields");
@@ -39,12 +47,12 @@ export default function AddProductPage() {
       await createProduct({
         name: form.name,
         price: Number(form.price),
-        category: form.category[0], // array → string
+        category_id: form.category_id,
         stock: Number(form.stock),
       });
 
       router.push("/admin/products");
-    } catch (err) {
+    } catch {
       alert("Failed to create product");
     } finally {
       setLoading(false);
@@ -69,10 +77,7 @@ export default function AddProductPage() {
           placeholder="e.g. Men Hoodie"
           value={form.name}
           onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              name: e.target.value,
-            }))
+            setForm((prev) => ({ ...prev, name: e.target.value }))
           }
         />
 
@@ -84,36 +89,51 @@ export default function AddProductPage() {
           placeholder="e.g. 49.99"
           value={form.price}
           onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              price: e.target.value,
-            }))
+            setForm((prev) => ({ ...prev, price: e.target.value }))
           }
         />
 
-        {/* Category */}
-      <Select
-        size="lg"
-        label="Category"
-        className="w-full"
-        value={form.category}
-        onChange={(e) => {
-          const value = (e.currentTarget as unknown as {
-            value: string[];
-          }).value;
+        {/* Category (native select, styled to match Jamsr Input) */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-neutral-300">
+            Category
+          </label>
 
-          setForm((prev) => ({
-            ...prev,
-            category: value,
-          }));
-        }}
-      >
-        <SelectItem value="Men">Men</SelectItem>
-        <SelectItem value="Women">Women</SelectItem>
-        <SelectItem value="Kids">Kids</SelectItem>
-      </Select>
+          <select
+            className="
+              w-full
+              h-12
+              rounded-md
+              bg-transparent
+              border
+              border-default-200
+              px-3
+              text-base
+              text-neutral-100
+              outline-none
+              focus:border-primary
+              focus:ring-1
+              focus:ring-primary
+            "
+            value={form.category_id}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                category_id: e.target.value,
+              }))
+            }
+          >
+            <option value="" disabled>
+              Select category
+            </option>
 
-
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Stock */}
         <Input
@@ -123,10 +143,7 @@ export default function AddProductPage() {
           placeholder="e.g. 20"
           value={form.stock}
           onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              stock: e.target.value,
-            }))
+            setForm((prev) => ({ ...prev, stock: e.target.value }))
           }
         />
 

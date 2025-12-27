@@ -11,15 +11,24 @@ export const createProduct = async (req, res) => {
 };
 
 // Get all products
+// export const getProducts = async (req, res) => {
+//   try {
+//     const products = await Product.find().populate("category_id");
+//     res.json(products);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category_id");
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const products = await Product.find()
+      .populate("category_id", "name");
+
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
-
 // Get product by ID
 export const getProductById = async (req, res) => {
   try {
