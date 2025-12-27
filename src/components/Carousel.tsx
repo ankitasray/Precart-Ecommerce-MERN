@@ -75,8 +75,8 @@ const Carousel = () => {
             <Image
               src={slides[currentIndex].src}
               alt={slides[currentIndex].title}
-              layout="fill"
-              objectFit="cover"
+              fill
+              style={{ objectFit: "cover" }}
               className="rounded-lg pointer-events-none"
             />
 
