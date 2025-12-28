@@ -9,79 +9,100 @@ import {
 } from "@jamsr-ui/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  getProductById,
+  updateProduct,
+} from "@/services/productService";
+import { getCategories } from "@/services/categoryService";
 
-/* TEMP mock data (replace with API later) */
-const MOCK_PRODUCTS = [
-  {
-    id: "1",
-    name: "Men Hoodie",
-    price: "45",
-    category: ["Men"],
-    stock: "12",
-  },
-  {
-    id: "2",
-    name: "Women Sneakers",
-    price: "89",
-    category: ["Women"],
-    stock: "6",
-  },
-];
+type Category = {
+  _id: string;
+  name: string;
+};
 
 export default function EditProductPage() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const productId = params.id;
+  const { id } = useParams<{ id: string }>();
+
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [form, setForm] = useState({
     name: "",
     price: "",
-    category: [] as string[],
+    category_id: "",
     stock: "",
   });
 
-  /* Prefill product */
+  /* Load categories */
   useEffect(() => {
-    const product = MOCK_PRODUCTS.find(
-      (p) => p.id === productId
-    );
+    getCategories()
+      .then(setCategories)
+      .catch(() => alert("Failed to load categories"));
+  }, []);
 
-    if (product) {
-      setForm({
-        name: product.name,
-        price: product.price,
-        category: product.category,
-        stock: product.stock,
-      });
+  /* Load product */
+  useEffect(() => {
+    if (!id) return;
+
+    getProductById(id)
+      .then((product) => {
+        setForm({
+          name: product.name,
+          price: String(product.price),
+          category_id: product.category_id,
+          stock: String(product.stock),
+        });
+      })
+      .catch(() => alert("Failed to load product"));
+  }, [id]);
+
+  const handleSubmit = async () => {
+    if (
+      !form.name ||
+      !form.price ||
+      !form.category_id ||
+      !form.stock
+    ) {
+      alert("Please fill all fields");
+      return;
     }
-  }, [productId]);
 
-  const handleSubmit = () => {
-    const payload = {
-      ...form,
-      id: productId,
-      category: form.category[0],
-    };
+    try {
+      setLoading(true);
 
-    console.log("Updated Product:", payload);
-    router.push("/admin/products");
+      await updateProduct(id, {
+        name: form.name,
+        price: Number(form.price),
+        category_id: form.category_id,
+        stock: Number(form.stock),
+      });
+
+      router.push("/admin/products");
+    } catch (err) {
+      alert("Failed to update product");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="max-w-3xl space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold">Edit Product</h1>
+        <h1 className="text-2xl font-semibold">
+          Edit Product
+        </h1>
         <p className="text-neutral-400 mt-1">
           Update product details
         </p>
       </div>
 
       <Card className="p-6 space-y-5">
-        {/* Product Name */}
         <Input
           size="lg"
           label="Product Name"
+          classNames={{ label: "text-neutral-300" }}
           value={form.name}
           onChange={(e) =>
             setForm((prev) => ({
@@ -91,11 +112,11 @@ export default function EditProductPage() {
           }
         />
 
-        {/* Price */}
         <Input
           size="lg"
           label="Price"
           type="number"
+          classNames={{ label: "text-neutral-300" }}
           value={form.price}
           onChange={(e) =>
             setForm((prev) => ({
@@ -105,32 +126,58 @@ export default function EditProductPage() {
           }
         />
 
-        {/* Category (Jamsr UI – FIXED) */}
-        <Select
-          size="lg"
-          label="Category"
-          value={form.category}
-          onChange={(e) => {
-            const target = e.target as unknown as {
-              value: string[];
-            };
+        {/* Category */}
+        <div className="space-y-1">
+          <label className="text-sm font-normal text-neutral-300">
+            Category
+          </label>
 
-            setForm((prev) => ({
-              ...prev,
-              category: target.value,
-            }));
-          }}
-        >
-          <SelectItem value="Men">Men</SelectItem>
-          <SelectItem value="Women">Women</SelectItem>
-          <SelectItem value="Kids">Kids</SelectItem>
-        </Select>
+          <select
+            className="
+              w-full
+              h-12
+              rounded-md
+              bg-transparent
+              border
+              border-default-200
+              px-3
+              text-base
+              text-neutral-100
+              outline-none
+              focus:border-primary
+              focus:ring-1
+              focus:ring-primary
+            "
+            value={form.category_id}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                category_id: e.target.value,
+              }))
+            }
+          >
+            <option value="" disabled className="bg-black">
+              Select category
+            </option>
 
-        {/* Stock */}
+            {categories.map((cat) => (
+              <option
+                key={cat._id}
+                value={cat._id}
+                className="bg-black text-neutral-100"
+              >
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+
         <Input
           size="lg"
           label="Stock Quantity"
           type="number"
+          classNames={{ label: "text-neutral-300" }}
           value={form.stock}
           onChange={(e) =>
             setForm((prev) => ({
@@ -140,15 +187,19 @@ export default function EditProductPage() {
           }
         />
 
-        {/* Actions */}
         <div className="flex gap-4 pt-4">
-          <Button color="primary" onClick={handleSubmit}>
-            Update Product
+          <Button
+            color="primary"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Updating..." : "Update Product"}
           </Button>
 
           <Button
-            variant="outlined" color="warning"
+            className="bg-white text-black hover:bg-neutral-200"
             onClick={() => router.back()}
+            disabled={loading}
           >
             Cancel
           </Button>
