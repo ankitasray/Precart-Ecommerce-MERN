@@ -9,6 +9,9 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import addressRoutes from "./routes/addressRoutes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js"
+
+import orderRoutes from "./routes/order.routes.js";
+
 const app = express();
 
 
@@ -32,5 +35,6 @@ app.use(
   "/uploads",
   express.static(path.join(process.cwd(), "uploads"))
 );
+app.use("/api/orders", orderRoutes);
 
 export default app;
