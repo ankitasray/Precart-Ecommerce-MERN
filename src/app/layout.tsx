@@ -36,6 +36,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased  flex flex-col min-h-screen `}
       >
+        <ThemeProvider>
           <UIProvider>
             <UIConfigProvider
               card={{
@@ -49,7 +50,7 @@ export default function RootLayout({
 
             </UIConfigProvider>
           </UIProvider>
-        
+        </ThemeProvider>
       </body>
     </html>
   );

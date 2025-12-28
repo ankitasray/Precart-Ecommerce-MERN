@@ -36,7 +36,13 @@ export default function DeleteConfirmModal({
         </p>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outlined" onClick={onCancel}>
+          <Button variant="outlined" onClick={onCancel} className="
+    bg-white
+    text-black
+    hover:bg-neutral-200
+    border
+    border-white
+  ">
             Cancel
           </Button>
 

@@ -75,6 +75,9 @@ export default function AddProductPage() {
           size="lg"
           label="Product Name"
           placeholder="e.g. Men Hoodie"
+          classNames={{
+            label: "text-neutral-300",
+          }}
           value={form.name}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, name: e.target.value }))
@@ -87,6 +90,9 @@ export default function AddProductPage() {
           label="Price"
           type="number"
           placeholder="e.g. 49.99"
+          classNames={{
+            label: "text-neutral-300",
+          }}
           value={form.price}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, price: e.target.value }))
@@ -95,7 +101,7 @@ export default function AddProductPage() {
 
         {/* Category (native select, styled to match Jamsr Input) */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-neutral-300">
+          <label className="text-sm font-normal text-neutral-300">
             Category
           </label>
 
@@ -141,6 +147,9 @@ export default function AddProductPage() {
           label="Stock Quantity"
           type="number"
           placeholder="e.g. 20"
+          classNames={{
+            label: "text-neutral-300",
+          }}
           value={form.stock}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, stock: e.target.value }))
@@ -161,6 +170,13 @@ export default function AddProductPage() {
             variant="outlined"
             onClick={() => router.back()}
             disabled={loading}
+            className="
+            bg-white
+            text-black
+            hover:bg-neutral-200
+            border
+            border-white
+  "
           >
             Cancel
           </Button>

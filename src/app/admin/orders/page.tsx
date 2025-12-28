@@ -111,6 +111,13 @@ export default function OrdersPage() {
       <Button
         variant="outlined"
         onClick={() => exportOrdersToCSV(orders)}
+        className="
+    bg-white
+    text-black
+    hover:bg-neutral-200
+    border
+    border-white
+  "
       >
         Export CSV
       </Button>
@@ -164,6 +171,13 @@ export default function OrdersPage() {
                       onClick={() =>
                         updateStatus(order.id, "Processing")
                       }
+                      className="
+    bg-white
+    text-black
+    hover:bg-neutral-200
+    border
+    border-white
+  "
                     >
                       Process
                     </Button>

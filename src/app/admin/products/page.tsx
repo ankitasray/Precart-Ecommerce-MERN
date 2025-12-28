@@ -127,7 +127,13 @@ export default function ProductsPage() {
                     <Link
                       href={`/admin/products/edit/${product._id}`}
                     >
-                      <Button size="sm" variant="outlined">
+                      <Button size="sm" variant="outlined" className="
+    bg-white
+    text-black
+    hover:bg-neutral-200
+    border
+    border-white
+  ">
                         Edit
                       </Button>
                     </Link>
