@@ -129,12 +129,12 @@ export default function AddProductPage() {
               }))
             }
           >
-            <option value="" disabled>
+            <option value="" disabled className="bg-black">
               Select category
             </option>
 
             {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
+              <option key={cat._id} value={cat._id} className="bg-black text-neutral-100">
                 {cat.name}
               </option>
             ))}
