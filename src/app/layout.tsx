@@ -32,22 +32,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="dark">
+   <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased  flex flex-col min-h-screen `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <ThemeProvider>
           <UIProvider>
             <UIConfigProvider
               card={{
                 isBordered: true,
-                className: "border border-[hsl(210,9.8%,16.1%)] bg-transparent",
+                className:
+                  "border border-[hsl(210,9.8%,16.1%)] bg-transparent",
               }}
             >
               <ConditionalLayout>
-  {children}
-</ConditionalLayout>
-
+                {children}
+              </ConditionalLayout>
             </UIConfigProvider>
           </UIProvider>
         </ThemeProvider>

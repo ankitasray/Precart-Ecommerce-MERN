@@ -52,9 +52,8 @@ const HeaderUsage = (props: HeaderProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isOpen, setIsOpen] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const avatarUrl = user?.avatar
-  ? `http://localhost:5000${user.avatar}?t=${Date.now()}`
-  : null;
+  const avatarUrl = user?.avatar || "https://i.pravatar.cc/300";
+
 
 
   /* ================= FETCH LOGGED IN USER ================= */

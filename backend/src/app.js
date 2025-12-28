@@ -11,6 +11,7 @@ import addressRoutes from "./routes/addressRoutes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js"
 const app = express();
 
+
 app.use(
   cors({
     origin: "http://localhost:3000", // 👈 frontend URL

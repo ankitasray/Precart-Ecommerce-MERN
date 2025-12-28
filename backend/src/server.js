@@ -10,3 +10,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+console.log("CLOUDINARY_URL loaded:", process.env.CLOUDINARY_URL);
