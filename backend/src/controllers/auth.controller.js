@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import cloudinary from "../utils/cloudinary.js"
 
 export const register = async (req, res) => {
   try {
@@ -217,21 +218,47 @@ export const deleteAccount = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+console.log("Cloudinary config check:", cloudinary.config());
+
+
 
 export const updateAvatar = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
+    console.log("Cloudinary CONFIG:", cloudinary.config());
 
+
+    // Upload to Cloudinary using buffer
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: "avatars",
+          public_id: req.user.userId, // one avatar per user
+          overwrite: true,
+          resource_type: "image",
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(req.file.buffer);
+    });
+
+    // Update user avatar URL
     const user = await User.findByIdAndUpdate(
       req.user.userId,
-      { avatar: `/uploads/avatars/${req.file.filename}` },
+      {
+        avatar: uploadResult.secure_url,
+        avatarPublicId: uploadResult.public_id, // optional but recommended
+      },
       { new: true }
     ).select("-password");
 
     res.status(200).json({ user });
   } catch (error) {
+    console.error("Avatar upload error:", error);
     res.status(500).json({ message: "Upload failed" });
   }
 };

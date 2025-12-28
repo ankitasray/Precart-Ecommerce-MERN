@@ -36,9 +36,8 @@ const Page = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 
-  const avatarUrl = user?.avatar
-  ? `http://localhost:5000${user.avatar}?t=${Date.now()}`
-  : "https://i.pravatar.cc/300";
+ const avatarUrl = user?.avatar || "https://i.pravatar.cc/300";
+
 
 
   /* ================= FETCH USER ================= */
