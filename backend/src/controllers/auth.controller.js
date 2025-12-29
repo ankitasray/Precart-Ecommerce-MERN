@@ -218,7 +218,7 @@ export const deleteAccount = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-console.log("Cloudinary config check:", cloudinary.config());
+// console.log("Cloudinary config check:", cloudinary.config());
 
 
 
@@ -227,7 +227,7 @@ export const updateAvatar = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
-    console.log("Cloudinary CONFIG:", cloudinary.config());
+    // console.log("Cloudinary CONFIG:", cloudinary.config());
 
 
     // Upload to Cloudinary using buffer
