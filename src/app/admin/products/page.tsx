@@ -14,6 +14,7 @@ type Product = {
   name: string;
   price: number;
   stock: number;
+   imageUrl?: string;
   category_id?: {
     _id: string;
     name: string;
@@ -115,7 +116,19 @@ export default function ProductsPage() {
                   key={product._id}
                   className="border-b border-neutral-800 hover:bg-neutral-800"
                 >
-                  <td className="p-3">{product.name}</td>
+                  <td className="p-3">
+  <div className="flex items-center gap-3">
+    <img
+      src={product.imageUrl || "/placeholder.png"}
+      alt={product.name}
+      className="w-12 h-12 object-cover rounded-md border border-neutral-700"
+    />
+    <span className="font-medium">
+      {product.name}
+    </span>
+  </div>
+</td>
+
                   <td className="p-3">
                     {product.category_id?.name ?? "—"}
                   </td>
