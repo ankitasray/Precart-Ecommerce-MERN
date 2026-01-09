@@ -15,6 +15,8 @@ import { AlertWithAction } from "./AlertAction";
 import CartCard from "./CartCard";
 import CartData from "@/data/CartData";
 import Link from "next/link";
+import { handlePayment } from "../../utils/razorpay";
+
 
 interface CartProps {
   isOpen: boolean;
@@ -22,7 +24,11 @@ interface CartProps {
   setIsOpen: (open: boolean) => void;
 }
 const Cart: React.FC<CartProps> = ({ isOpen, onClose, setIsOpen }) => {
-  
+  const subtotal = CartData.reduce(
+  (total, item) => total + item.price * item.quantity,
+  0
+);
+
 
   return (
     <div>
@@ -67,16 +73,22 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose, setIsOpen }) => {
           <div className="p-2 w-full ">
             <div className="flex justify-between items-center text-lg font-semibold  ">
               <div>Subtotal</div>
-              <div>$229</div>
+             <div>₹{subtotal}</div>
             </div>
             <div className="text-sm text-neutral-500">Shipping, taxes and discounts are calculated at checkout. </div>
             <div className="flex justify-between items-center py-2">
             <Link href="/cart" onClick={onClose}  className="border border-neutral-500 px-8 py-1 hover:bg-neutral-400  rounded-lg">
             View cart (3)
           </Link>
-          <Button onClick={onClose} color="primary" className=" px-8">
-            Checkout
-          </Button>
+<Button
+  onClick={() => handlePayment(subtotal, CartData)}
+  color="primary"
+  className="px-8"
+>
+  Checkout
+</Button>
+
+
             </div>
           </div>
         </DrawerFooter>

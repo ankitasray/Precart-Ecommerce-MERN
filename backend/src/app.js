@@ -9,8 +9,10 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import addressRoutes from "./routes/addressRoutes.js";
 import adminAuthRoutes from "./routes/adminAuth.routes.js"
+import paymentRoutes from "./routes/payment.routes.js";
+import orderRoutes from "./routes/order.routes.js"
 const app = express();
-
+app.use(cookieParser());
 
 app.use(
   cors({
@@ -18,7 +20,7 @@ app.use(
     credentials: true,               // 👈 IMPORTANT
   })
 );
-app.use(cookieParser());
+
 app.use(express.json()); // for JSON
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/test", testRoutes);
@@ -32,5 +34,11 @@ app.use(
   "/uploads",
   express.static(path.join(process.cwd(), "uploads"))
 );
+
+
+app.use("/api/payment", paymentRoutes);
+app.use("/api/orders", orderRoutes);
+
+
 
 export default app;

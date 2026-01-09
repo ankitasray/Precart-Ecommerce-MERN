@@ -76,9 +76,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    // console.log("REQ BODY:", req.body);
-
-    const { email, password } = req.body || {};
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
@@ -88,11 +86,6 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-  //     if (!user || !user.isActive) {
-  //   return res.status(403).json({
-  //     message: "Account is deactivated",
-  //   });
-  // }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -100,7 +93,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, role: user.role }, // ✅ FIXED
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -108,7 +101,7 @@ export const login = async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "lax", // ✅ FIXED
         secure: process.env.NODE_ENV === "production",
       })
       .status(200)
@@ -121,10 +114,10 @@ export const login = async (req, res) => {
         },
       });
   } catch (err) {
-    console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
